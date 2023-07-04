@@ -2,6 +2,7 @@ library(ggplot2)
 library(dplyr)
 library(lubridate)
 
+#Converting numbers to corresponding month
 birth8 <- read.csv("2018-birth.csv")
 
 birth8$Month = recode(birth8$Month, `1`="January",
@@ -62,6 +63,7 @@ birth21$Month = recode(birth21$Month, `1`="January",
                        `11`="November",
                        `12`="December")
 
+#Summarizing the total birth in the Philippines
 birth8 <- birth8 %>%
   group_by(Month) %>%
   summarize(Total.Birth=sum(Total.Birth)) %>%
@@ -69,28 +71,12 @@ birth8 <- birth8 %>%
 
 a <- sum(birth8[, 'Total.Birth'], na.rm = TRUE)
 
-
 birth9 <- birth9 %>%
   group_by(Month) %>%
   summarize(Total.Birth=sum(Total.Birth)) %>%
   mutate(i = match(Month, month.name))
-#total birth of 2018 and 2019
-
-
-# eq <- lm(birth9$Total.Birth~birth9$i)
-# b <- eq$coefficients[["(Intercept)"]]
-# m <- eq$coefficients[["birth9$i"]]
-# 
-# ggplot(data=birth9,
-#        mapping=aes(x=reorder(Month, i),
-#                    y=Total.Birth)) +
-#   geom_point() +
-#   geom_abline(slope=m, intercept=b) +
-#   theme_bw()
-#plotting the data using barplot
 
 b <- sum(birth9[, 'Total.Birth'], na.rm = TRUE)
-#sum of all birth cases from 2018-2019
 
 birth2 <- birth2 %>%
   group_by(Month) %>%
@@ -103,34 +89,17 @@ birth21 <- birth21 %>%
   group_by(Month) %>%
   summarize(Total.Birth=sum(Total.Birth)) %>%
   mutate(i = match(Month, month.name))
-#total birth of 2020 and 2021
-
-# eq <- lm(birth21$Total.Birth~birth21$i)
-# b <- eq$coefficients[["(Intercept)"]]
-# m <- eq$coefficients[["birth21$i"]]
-# 
-# ggplot(data=birth21,
-#        mapping=aes(x=reorder(Month, i),
-#                    y=Total.Birth)) +
-#   geom_point() +
-#   geom_abline(slope=m, intercept=b) +
-#   theme_bw()
-#plotting the data using barplot
 
 d <- sum(birth21[, 'Total.Birth'], na.rm = TRUE)
-#sum of all birth cases from 2020-2021
 
+#Creating a barplot to visualize the data
 df_ <- data.frame(births=c(a, b, c, d), year=as.factor(2018:2021))
 ggplot(df_, aes(year, births, fill=year)) +
   geom_bar(stat="identity")
 
-
-
-
-
 ##########################################################################################################
 
-
+#filtering the Covid-19 data
 df <- read.csv("WHO-COVID-19-global-data.csv")
 colnames(df) <- c("date", "code", "country", "WHO_region", "new_cases", "cum_cases", "new_deaths", "cum_deaths")
 
@@ -141,7 +110,7 @@ df <- df %>% filter(code=="PH") %>%
   summarise(total=sum(new_cases)) %>% 
   mutate(date=as.Date(paste(as.factor(group), "01", sep="-"), format="%Y-%m-%d"))
 
-#filtering the month and year of covid cases in the Philippines during 2020-2021
+#filtering the month and year of covid cases
 birth20 <- read.csv("2020-birth.csv") %>% 
   mutate(i=match(Month, month.name)) %>% 
   top_n(3, i) %>% 
@@ -153,13 +122,14 @@ birth21 <- read.csv("2021-birth.csv") %>%
 
 z <- rbind(birth20, birth21)
 
-#combining the 2 datasets
+#plotting the data base on their date
 ggplot() +
   geom_point(data=df, aes(date, total), color="red") +
   geom_point(data=z, aes(date2, Total.Birth), color="blue") +
   geom_smooth(data=df, aes(date, total), se=FALSE, color="red") + 
   geom_smooth(data=z, aes(date2, Total.Birth), se=FALSE, color="blue")
 
+#combining both data to better visualize it
 ggplot(cbind(df, z)) +
   geom_point(aes(date, total), color="red") +
   geom_point(aes(date, Total.Birth), color="blue") +
@@ -168,8 +138,3 @@ ggplot(cbind(df, z)) +
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank())
-
-
-
-
-
